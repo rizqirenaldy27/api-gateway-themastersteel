@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - service-employee
+      - service-user
+    networks:
+      - api-gateway-network
+
+  service-employee:
+    build:
+      context: ./service-employee
+      dockerfile: Dockerfile
+    expose:
+      - "3001"
+    networks:
+      - api-gateway-network
+
+  service-user:
+    build:
+      context: ./service-user
+      dockerfile: Dockerfile
+    expose:
+      - "3002"
+    networks:
+      - api-gateway-network
+  
+  postgres:
+    image: postgres:15.3-alpine3.18
+    container_name: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_HOST='127.0.0.1'
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER='admin-postgres'
+      - POSTGRES_PASSWORD='dbPostgres41'
+    networks:
+      - api-gateway-network
+
+networks:
+  api-gateway-network:
+    driver: bridge
